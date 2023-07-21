@@ -10,6 +10,8 @@ import android.widget.EditText
 import android.widget.ListView
 import androidx.appcompat.app.AlertDialog
 
+data class TaskItem(val task: String, val isCompleted: Boolean)
+
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,7 +23,7 @@ class MainActivity : AppCompatActivity() {
         val list = findViewById<ListView>(R.id.lv)
 
         // アダプターに入れてListViewにセット
-        val adapter = ArrayAdapter<String>(
+        val adapter = ArrayAdapter<TaskItem>(
             this,
             android.R.layout.simple_list_item_1,
             mutableListOf() // 空のリストが初期値
@@ -44,7 +46,7 @@ class MainActivity : AppCompatActivity() {
                 .setPositiveButton("追加", DialogInterface.OnClickListener{_, _ ->
                     // add()でアダプターに追加
                     val newToDo = et.text.toString()
-                    adapter.add(newToDo) // アダプターでリストを管理してるのでそこに追加
+                    adapter.add(TaskItem(newToDo, false)) // アダプターでリストを管理してるのでそこに追加
                     adapter.notifyDataSetChanged() // 更新を反映
                 }) // OKボタン
                 .setNegativeButton("キャンセル", null) // キャンセルボタン
@@ -67,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         list.setOnItemClickListener { _, _, i, _ ->
             AlertDialog.Builder(this)
                 .setTitle("タスクの削除")
-                .setMessage("「" + adapter.getItem(i).toString() + "」を本当に削除しますか？")
+                .setMessage("「" + adapter.getItem(i)?.task.toString() + "」を本当に削除しますか？")
                 .setPositiveButton("Yes", DialogInterface.OnClickListener { _, _ ->
                     adapter.remove(adapter.getItem(i)) // i番目を取得して削除
                     adapter.notifyDataSetChanged() // 更新を反映
