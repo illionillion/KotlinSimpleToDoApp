@@ -13,6 +13,9 @@ import androidx.appcompat.app.AlertDialog
 data class TaskItem(val task: String, val isCompleted: Boolean)
 
 class MainActivity : AppCompatActivity() {
+
+    var tasks = mutableListOf<TaskItem>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -22,12 +25,8 @@ class MainActivity : AppCompatActivity() {
         val resetBtn = findViewById<Button>(R.id.resetButton)
         val list = findViewById<ListView>(R.id.lv)
 
-        // アダプターに入れてListViewにセット
-        val adapter = ArrayAdapter<TaskItem>(
-            this,
-            android.R.layout.simple_list_item_1,
-            mutableListOf() // 空のリストが初期値
-        )
+        // アダプターに入れてセット
+        val adapter = TaskAdapter(this, tasks)
 
         list.adapter = adapter
 
@@ -46,7 +45,7 @@ class MainActivity : AppCompatActivity() {
                 .setPositiveButton("追加", DialogInterface.OnClickListener{_, _ ->
                     // add()でアダプターに追加
                     val newToDo = et.text.toString()
-                    adapter.add(TaskItem(newToDo, false)) // アダプターでリストを管理してるのでそこに追加
+                    tasks.add(TaskItem(newToDo, false)) // アダプターでリストを管理してるのでそこに追加
                     adapter.notifyDataSetChanged() // 更新を反映
                 }) // OKボタン
                 .setNegativeButton("キャンセル", null) // キャンセルボタン
@@ -59,19 +58,7 @@ class MainActivity : AppCompatActivity() {
                 .setTitle("タスクの全削除")
                 .setMessage("本当にタスクを全て削除しますか？")
                 .setPositiveButton("Yes", DialogInterface.OnClickListener { _, _ ->
-                    adapter.clear() // クリア
-                    adapter.notifyDataSetChanged() // 更新を反映
-                })
-                .setNegativeButton("No", null)
-                .show()
-        }
-
-        list.setOnItemClickListener { _, _, i, _ ->
-            AlertDialog.Builder(this)
-                .setTitle("タスクの削除")
-                .setMessage("「" + adapter.getItem(i)?.task.toString() + "」を本当に削除しますか？")
-                .setPositiveButton("Yes", DialogInterface.OnClickListener { _, _ ->
-                    adapter.remove(adapter.getItem(i)) // i番目を取得して削除
+                    tasks.clear() // クリア
                     adapter.notifyDataSetChanged() // 更新を反映
                 })
                 .setNegativeButton("No", null)
