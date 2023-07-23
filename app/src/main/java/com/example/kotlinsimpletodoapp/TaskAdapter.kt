@@ -2,6 +2,8 @@ package com.example.kotlinsimpletodoapp
 
 import android.content.Context
 import android.content.DialogInterface
+import android.graphics.Color
+import android.graphics.Paint
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +12,7 @@ import android.widget.BaseAdapter
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
+import androidx.core.widget.doOnTextChanged
 
 public class TaskAdapter(val context: Context, private val tasks: MutableList<TaskItem> ) : BaseAdapter() {
     override fun getCount(): Int {
@@ -52,6 +55,28 @@ public class TaskAdapter(val context: Context, private val tasks: MutableList<Ta
             }
         }
 
+        completeButton.setOnClickListener {
+
+            val prevFlag = tasks[position].isCompleted
+            val newFlag = !prevFlag
+            tasks[position].isCompleted = newFlag
+            completeButton.text = if(newFlag) "Incomplete" else "Complete"
+            completeButton.setBackgroundColor(Color.parseColor(if(newFlag) "#666666" else "#4CAF50"))
+            if (newFlag) {
+                // フラグが true の場合は打ち消し線を追加
+                taskNameEditText.paintFlags = taskNameEditText.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            } else {
+                // フラグが false の場合は打ち消し線を取り消す
+                taskNameEditText.paintFlags = taskNameEditText.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            }
+            notifyDataSetChanged()
+
+        }
+
+        // 以下が変更が加えられたら、tasks[position].taskに再代入
+        taskNameEditText.doOnTextChanged { text, _, _, _ ->
+            tasks[position].task = text.toString()
+        }
 
         return view
     }

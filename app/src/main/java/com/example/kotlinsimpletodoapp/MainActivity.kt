@@ -10,7 +10,7 @@ import android.widget.EditText
 import android.widget.ListView
 import androidx.appcompat.app.AlertDialog
 
-data class TaskItem(val task: String, val isCompleted: Boolean)
+data class TaskItem(var task: String, var isCompleted: Boolean)
 
 class MainActivity : AppCompatActivity() {
 
