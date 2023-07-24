@@ -15,7 +15,7 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doOnTextChanged
 
-public class TaskAdapter(val context: Context, private val tasks: MutableList<TaskItem> ) : BaseAdapter() {
+public class TaskAdapter(private val context: Context, private val tasks: MutableList<TaskItem> ) : BaseAdapter() {
     override fun getCount(): Int {
         return tasks.count()
     }
@@ -60,6 +60,7 @@ public class TaskAdapter(val context: Context, private val tasks: MutableList<Ta
                     .setMessage("「" + taskItem?.task.toString() + "」を本当に削除しますか？")
                     .setPositiveButton("Yes", DialogInterface.OnClickListener { _, _ ->
                         tasks.removeAt(position) // i番目を取得して削除
+                        saveTasksToSharedPreferences()
                         notifyDataSetChanged() // 更新を反映
                     })
                     .setNegativeButton("No", null)
@@ -81,6 +82,7 @@ public class TaskAdapter(val context: Context, private val tasks: MutableList<Ta
                 // フラグが false の場合は打ち消し線を取り消す
                 taskNameEditText.paintFlags = taskNameEditText.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
             }
+            saveTasksToSharedPreferences()
             notifyDataSetChanged()
 
         }
@@ -88,8 +90,15 @@ public class TaskAdapter(val context: Context, private val tasks: MutableList<Ta
         // 以下が変更が加えられたら、tasks[position].taskに再代入
         taskNameEditText.doOnTextChanged { text, _, _, _ ->
             taskItem.task = text.toString()
+            saveTasksToSharedPreferences()
         }
 
         return view
     }
+
+    // データをShared Preferencesに保存
+    public fun saveTasksToSharedPreferences() {
+        TaskPreferences(context).saveTaskList(tasks)
+    }
+
 }

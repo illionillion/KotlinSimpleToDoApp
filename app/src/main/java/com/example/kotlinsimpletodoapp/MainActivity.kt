@@ -14,7 +14,7 @@ data class TaskItem(var task: String, var isCompleted: Boolean)
 
 class MainActivity : AppCompatActivity() {
 
-    var tasks = mutableListOf<TaskItem>()
+    private var tasks = mutableListOf<TaskItem>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,6 +24,9 @@ class MainActivity : AppCompatActivity() {
         val addBtn = findViewById<Button>(R.id.addButton)
         val resetBtn = findViewById<Button>(R.id.resetButton)
         val list = findViewById<ListView>(R.id.lv)
+
+        val taskPreferences = TaskPreferences(this)
+        tasks.addAll(taskPreferences.getTaskList())
 
         // アダプターに入れてセット
         val adapter = TaskAdapter(this, tasks)
@@ -46,6 +49,7 @@ class MainActivity : AppCompatActivity() {
                     // add()でアダプターに追加
                     val newToDo = et.text.toString()
                     tasks.add(TaskItem(newToDo, false)) // アダプターでリストを管理してるのでそこに追加
+                    adapter.saveTasksToSharedPreferences()
                     adapter.notifyDataSetChanged() // 更新を反映
                 }) // OKボタン
                 .setNegativeButton("キャンセル", null) // キャンセルボタン
@@ -59,6 +63,7 @@ class MainActivity : AppCompatActivity() {
                 .setMessage("本当にタスクを全て削除しますか？")
                 .setPositiveButton("Yes", DialogInterface.OnClickListener { _, _ ->
                     tasks.clear() // クリア
+                    adapter.saveTasksToSharedPreferences()
                     adapter.notifyDataSetChanged() // 更新を反映
                 })
                 .setNegativeButton("No", null)
